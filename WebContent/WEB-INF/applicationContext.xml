@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+			            http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+			            http://www.springframework.org/schema/context
+			            http://www.springframework.org/schema/context/spring-context-4.2.xsd
+			            http://www.springframework.org/schema/mvc
+			            http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+			            http://www.springframework.org/schema/tx
+			            http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
+			            http://mybatis.org/schema/mybatis-spring 
+			            http://mybatis.org/schema/mybatis-spring.xsd ">
+			      
+	 <!-- mybatis:scan会将com.ssm.demo.mapper包里的所有接口当作mapper配置，之后可以自动引入mapper类-->  
+    <mybatis:scan base-package="com.ssm.demo.mapper"/>   
+       
+	 <!-- 扫描com.ssm.demo包下面的java文件，有Spring的相关注解的类，则把这些类注册为Spring的bean -->
+    <context:component-scan base-package="com.ssm.demo"/>
+    
+	<!-- 使用PropertyOverrideConfigurer后处理器加载数据源参数 -->
+	<!-- property-override标签加载的properties文件中的key的格式有严格的要求,必须为“bean名称.bean属性”。
+	如果属性ignore-unresolvable的值为false,那么属性文件中的bean名称必须在当前容器中能找到对应的bean -->
+	<context:property-override location="classpath:db.properties"/>
+
+	<!-- 配置c3p0数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"/>
+	
+	<!-- 配置SqlSessionFactory，org.mybatis.spring.SqlSessionFactoryBean是Mybatis社区开发用于整合Spring的bean -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" p:dataSource-ref="dataSource">
+		<!-- SQLMapper 使用XML配置方式 -->
+		<!-- <property name="mapperLocations">
+            <list>
+                <value>classpath*:com/ssm/demo/mapper/*Mapper.xml</value>
+            </list>
+        </property> -->
+	</bean>
+	
+	<!-- JDBC事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" p:dataSource-ref="dataSource"/>
+	
+	<!-- 启用支持annotation注解方式事务管理 -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>
